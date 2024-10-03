@@ -17,12 +17,12 @@ class User {
         return currentLevel;
     }
 
-    // Provide restricted access to medical history
+ 
     public boolean hasMedicalConditions() {
         return !medicalHistory.isEmpty();
     }
 
-    // Helper method for checking specific conditions
+ 
     public boolean hasHeartDisease() {
         return medicalHistory.toLowerCase().contains("heart disease");
     }
