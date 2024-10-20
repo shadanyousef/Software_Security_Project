@@ -12,6 +12,7 @@ class FitnessPlan {
         this.goal = goal;
     }
 
+    //getters
     public String getCategory() {
         return category;
     }

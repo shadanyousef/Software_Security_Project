@@ -1,7 +1,5 @@
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 public class FitnessRecommendationSystem {
     private List<FitnessPlan> plans;
@@ -20,99 +18,192 @@ public class FitnessRecommendationSystem {
     }
 
     public void recommendFitnessPlans(User user) {
-        System.out.println("Recommended Fitness Plans based on your input:");
+        boolean planFound = false; // Track if any valid plan is found
+        boolean healthWarningsNeeded = false; // Track if health warnings should be displayed
+        FitnessPlan selectedPlan = null; // Declare selected plan outside the loop
+
         for (FitnessPlan plan : plans) {
+            // Check if the user's goal and fitness level match the plan
             if (plan.getGoal().equalsIgnoreCase(user.getFitnessGoal()) &&
-                plan.getLevel().equalsIgnoreCase(user.getCurrentLevel())) {
-                
-                // Check medical conditions before recommendation
-                if (user.hasMedicalConditions() && !isSuitableBasedOnMedicalHistory(user, plan)) {
-                    System.out.println("Note: This plan may not be suitable due to your medical history.");
-                    continue;
+                    isLevelSufficient(user.getCurrentLevel(), plan.getLevel())) {
+
+                planFound = true; // Valid plan found
+                selectedPlan = plan; // Assign the valid plan to selectedPlan
+                int totalTime = plan.getMinDuration() + getAdditionalTime(user.getCurrentLevel());
+
+                if (plan.getCategory().equalsIgnoreCase("HIIT")) {
+                    if (user.getBoneOrJointProblems().equalsIgnoreCase("yes") || user.getSurgery().equalsIgnoreCase("yes")) {
+                        System.out.println("\nPlease BE AWARE and consider the following:");
+                        System.out.println("HIIT is not recommended for joint or bone problems or for those recovering from surgery due to high impact."  
+                        + "Please try a different fitness goal.");
+                        return;  // Skip the fitness plan recommendation entirely
+                    }
                 }
 
-                int totalTime = plan.getMinDuration() + getAdditionalTime(user.getCurrentLevel());
+                System.out.println("\nRecommended Fitness Plans based on your input:");
+                // Display the recommended plan
                 System.out.println("Category: " + plan.getCategory() +
-                                   ", Required Weekly Time: " + totalTime + " minutes" +
-                                   ", Goal: " + plan.getGoal());
+                        ", Required Weekly Time: " + totalTime + " minutes" +
+                        ", Goal: " + plan.getGoal());
 
-                
-                if (user.hasMedicalConditions()) {
-                    System.out.println("Additional Notes: Please consult your doctor before starting any new fitness plan.");
-                } 
             }
+
+            // Check if any health warnings are needed
+            if (user.getBoneOrJointProblems().equalsIgnoreCase("yes") ||
+                    user.getDiabetes().equalsIgnoreCase("yes") ||
+                    user.getHeartDisease().equalsIgnoreCase("yes") ||
+                    user.getSurgery().equalsIgnoreCase("yes") ||
+                    user.getMedication().equalsIgnoreCase("yes")) {
+                healthWarningsNeeded = true;
+            }
+        }
+
+        // If no valid plans were found for the user's level and goal
+        if (!planFound) {
+            System.out.println(
+                    "\nSorry, your current fitness level does not match the requirements for your selected fitness goal: "
+                            + user.getFitnessGoal() + ".");
+            // Exit the program if no valid plan is found
+            System.exit(0);
+
+        }
+
+        // Display health warnings only if needed
+        if (healthWarningsNeeded) {
+            System.out.println("\nPlease BE AWARE and consider the following:");
+            displayHealthWarnings(user, selectedPlan); // Use the selected plan, or null if none found
         }
     }
 
+    // Check if the user's level meets or exceeds the minimum required level for the
+    // plan
+    private boolean isLevelSufficient(String userLevel, String requiredLevel) {
+        List<String> levels = List.of("Beginner", "Intermediate", "Advanced");
+        int userLevelIndex = levels.indexOf(userLevel);
+        int requiredLevelIndex = levels.indexOf(requiredLevel);
+
+        // User's level should be equal to or higher than the required level
+        return userLevelIndex >= requiredLevelIndex;
+    }
+
+    // Add extra time based on the user's fitness level
     private int getAdditionalTime(String level) {
-        switch (level) {
-            case "Beginner":
+        switch (level.toLowerCase()) {
+            case "beginner":
                 return 30;
-            case "Intermediate":
+            case "intermediate":
                 return 20;
-            case "Advanced":
+            case "advanced":
                 return 10;
             default:
                 return 0;
         }
     }
- 
-    private boolean isSuitableBasedOnMedicalHistory(User user, FitnessPlan plan) {
-        if (user.hasHeartDisease() && plan.getCategory().equalsIgnoreCase("HIIT")) {
-            return false;  
-        }
-     
-        return true;
-    }
 
+    // Display warnings or suggestions based on user's health conditions and the
+    // fitness plan
+    private void displayHealthWarnings(User user, FitnessPlan plan) {
+        String category = plan.getCategory();
 
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+        if (plan != null) {
+            if (category.equalsIgnoreCase("Cardio")) {
+                if (user.getBoneOrJointProblems().equalsIgnoreCase("yes")) {
+                    System.out.println(
+                            "For joint problems, low-impact cardio such as walking, cycling, or swimming is recommended.");
+                }
+                if (user.getDiabetes().equalsIgnoreCase("yes")) {
+                    System.out.println(
+                            "For diabetes, monitor glucose levels and avoid exercising during hypoglycemia or hyperglycemia.");
+                }
+                if (user.getHeartDisease().equalsIgnoreCase("yes")) {
+                    System.out.println(
+                            "For heart disease, light to moderate cardio is recommended after consulting a doctor.");
+                }
+                if (user.getSurgery().equalsIgnoreCase("yes")) {
+                    System.out
+                            .println(
+                                    "After surgery, approach cardio with caution and tailor it to your recovery stages.");
+                }
+            }
 
-        // validation
-        String goal = "";
-        while (goal.isEmpty()) {
-            System.out.print("Enter your Fitness Goal (Weight Loss, Muscle Building, Improve Flexibility, Improve Cardiovascular Health, Stress Relief): ");
-            goal = scanner.nextLine().trim();
-            if (!isValidGoal(goal)) {
-                System.out.println("Invalid goal. Please enter a valid fitness goal.");
-                goal = "";
+            if (category.equalsIgnoreCase("Strength Training")) {
+                if (user.getBoneOrJointProblems().equalsIgnoreCase("yes")) {
+                    System.out.println(
+                            "For joint problems, avoid heavy weights and focus on resistance training with lighter weights or resistance bands.");
+                }
+                if (user.getDiabetes().equalsIgnoreCase("yes")) {
+                    System.out.println("For diabetes, strength training helps improve insulin sensitivity.");
+                }
+                if (user.getHeartDisease().equalsIgnoreCase("yes")) {
+                    System.out.println(
+                            "For heart conditions, avoid heavy weights and focus on controlled, moderate-intensity exercises after consulting with a cardiologist.");
+                }
+                if (user.getSurgery().equalsIgnoreCase("yes")) {
+                    System.out.println(
+                            "After surgery, introduce strength training carefully and avoid stress on the surgical area.");
+                }
+            }
+
+            if (category.equalsIgnoreCase("Flexibility")) {
+                if (user.getBoneOrJointProblems().equalsIgnoreCase("yes")) {
+                    System.out
+                            .println(
+                                    "For joint problems, flexibility exercises like stretching are safe and beneficial.");
+                }
+                if (user.getDiabetes().equalsIgnoreCase("yes")) {
+                    System.out.println(
+                            "Flexibility exercises are safe for diabetes as long as movements are gentle.");
+                }
+                if (user.getHeartDisease().equalsIgnoreCase("yes")) {
+                    System.out.println(
+                            "Flexibility exercises are safe for heart disease as long as movements are gentle.");
+                }
+                if (user.getSurgery().equalsIgnoreCase("yes")) {
+                    System.out.println(
+                            "After surgery, gentle stretching can help restore movement but only with a doctor's approval.");
+                }
+            }
+
+            if (category.equalsIgnoreCase("HIIT")) {
+                if (user.getBoneOrJointProblems().equalsIgnoreCase("yes")) {
+                    System.out.println(
+                            "HIIT is not recommended for joint or bone problems due to high impact.");
+                }
+                if (user.getDiabetes().equalsIgnoreCase("yes")) {
+                    System.out.println(
+                            "For diabetes, HIIT should only be attempted under medical supervision. Please consult with a doctor before continuing with the plan.");
+                }
+                if (user.getHeartDisease().equalsIgnoreCase("yes")) {
+                    System.out.println(
+                            "For heart disease, HIIT should only be attempted under medical supervision. Please consult with a doctor before continuing with the plan.");
+                }
+                if (user.getSurgery().equalsIgnoreCase("yes")) {
+                    System.out.println(
+                            "HIIT is not recommended for those recovering from surgery.");
+                }
+            }
+
+            if (category.equalsIgnoreCase("Yoga")) {
+                if (user.getBoneOrJointProblems().equalsIgnoreCase("yes")) {
+                    System.out.println(
+                            "Yoga is excellent for joint problems as it improves flexibility and strength without high impact.");
+                }
+                if (user.getDiabetes().equalsIgnoreCase("yes")) {
+                    System.out.println("For diabetes, yoga helps reduce stress and improve insulin sensitivity.");
+                }
+                if (user.getHeartDisease().equalsIgnoreCase("yes")) {
+                    System.out.println(
+                            "For heart disease, gentle forms of yoga focusing on breathing and relaxation are recommended.");
+                }
+                if (user.getSurgery().equalsIgnoreCase("yes")) {
+                    System.out.println(
+                            "For post-surgery individuals, restorative or gentle yoga is recommended to promote healing.");
+                }
+            }
+
+            if (user.getMedication().equalsIgnoreCase("yes")) {
+                System.out.println("You are taking medication. Please consult a doctor before starting this plan.");
             }
         }
-
-        String level = "";
-        while (level.isEmpty()) {
-            System.out.print("Enter your Current Fitness Level (Beginner, Intermediate, Advanced): ");
-            level = scanner.nextLine().trim();
-            if (!isValidLevel(level)) {
-                System.out.println("Invalid fitness level. Please enter a valid level.");
-                level = "";
-            }
-        }
-
-        System.out.print("Enter your Medical History: ");
-        String medicalHistory = scanner.nextLine().trim();
-
-        // Create the user object after validation
-        User user = new User(goal, level, medicalHistory);
-        FitnessRecommendationSystem system = new FitnessRecommendationSystem();
-        system.recommendFitnessPlans(user);
-
-        scanner.close();
-    }
-
-    
-    private static boolean isValidGoal(String goal) {
-        return goal.equalsIgnoreCase("Weight Loss") ||
-               goal.equalsIgnoreCase("Muscle Building") ||
-               goal.equalsIgnoreCase("Improve Flexibility") ||
-               goal.equalsIgnoreCase("Improve Cardiovascular Health") ||
-               goal.equalsIgnoreCase("Stress Relief");
-    }
-
-    private static boolean isValidLevel(String level) {
-        return level.equalsIgnoreCase("Beginner") ||
-               level.equalsIgnoreCase("Intermediate") ||
-               level.equalsIgnoreCase("Advanced");
     }
 }
