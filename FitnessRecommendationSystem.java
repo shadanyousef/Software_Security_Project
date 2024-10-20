@@ -35,7 +35,7 @@ public class FitnessRecommendationSystem {
                     if (user.getBoneOrJointProblems().equalsIgnoreCase("yes") || user.getSurgery().equalsIgnoreCase("yes")) {
                         System.out.println("\nPlease BE AWARE and consider the following:");
                         System.out.println("HIIT is not recommended for joint or bone problems or for those recovering from surgery due to high impact."  
-                        + "Please try a different fitness goal.");
+                        + " Please try a different fitness goal.");
                         return;  // Skip the fitness plan recommendation entirely
                     }
                 }

@@ -9,9 +9,6 @@ public class MainApp {
         // Welcome statement
         System.out.println("Welcome to the Personalized Fitness Plan Recommendation System!");
 
-        // System.out.println("1. Create a new Personalized Fitness Plan");
-        // System.out.println("2. View your Personalized Fitness Plan");
-
         // User Information section
         System.out.print("Please enter your name: ");
         String name = scanner.nextLine().trim();
