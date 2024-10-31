@@ -1,5 +1,8 @@
-class User {
-    //private int id;
+import java.io.Serializable;
+
+class User implements Serializable {
+    private String email;
+    private String password;
     private String name;
     private int age;
     private String gender;
@@ -10,11 +13,14 @@ class User {
     private String heartDisease;
     private String surgery;
     private String medication;
+    private String fitnessCategory;
 
-    public User(String name, int age, String gender, String fitnessGoal, String currentLevel,
+    public User(String email, String password, String name, int age, String gender, String fitnessGoal,
+            String currentLevel,
             String boneOrJointProblems, String diabetes, String heartDisease,
-            String surgery, String medication) {
-        //this.id = id;
+            String surgery, String medication, String fitnessCategory) {
+        this.email = email;
+        this.password = password;
         this.name = name;
         this.age = age;
         this.gender = gender;
@@ -25,12 +31,18 @@ class User {
         this.heartDisease = heartDisease;
         this.surgery = surgery;
         this.medication = medication;
+        this.fitnessCategory = fitnessCategory;
     }
 
     // Getters
-    // public int getId() {
-    //     return id;
-    // }
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+    
     public String getName() {
         return name;
     }
@@ -71,6 +83,10 @@ class User {
         return medication;
     }
 
+    public String getFitnessCategory() {
+        return fitnessCategory;
+    }
+
     // Check if the user has medical conditions
     public boolean hasMedicalConditions() {
         return !boneOrJointProblems.equalsIgnoreCase("no") ||
@@ -80,8 +96,20 @@ class User {
                 !medication.equalsIgnoreCase("no");
     }
 
-    // Additional helper methods for specific medical conditions
-    public boolean hasHeartDisease() {
-        return heartDisease.equalsIgnoreCase("yes");
+    @Override
+    public String toString() {
+        return "Email: " + email +
+                "\nName: " + name +
+                "\nAge: " + age +
+                "\nGender: " + gender +
+                "\nBone/Joint Problems: " + boneOrJointProblems +
+                "\nDiabetes: " + diabetes +
+                "\nHeart Disease: " + heartDisease +
+                "\nSurgery: " + surgery +
+                "\nMedication: " + medication +
+                "\nFitness Goal: " + fitnessGoal +
+                "\nCurrent Level: " + currentLevel +
+                "\nFitness Category: " + fitnessCategory +
+                "\n";
     }
 }
