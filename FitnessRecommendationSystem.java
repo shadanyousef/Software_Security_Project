@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class FitnessRecommendationSystem {
@@ -17,10 +18,11 @@ public class FitnessRecommendationSystem {
         plans.add(new FitnessPlan("Yoga", 120, "Beginner", "Stress Relief"));
     }
 
-    public void recommendFitnessPlans(User user) {
+    public String recommendFitnessPlans(User user) {
+        String recommendedPlan = null; // To hold the recommended fitness plan
         boolean planFound = false; // Track if any valid plan is found
         boolean healthWarningsNeeded = false; // Track if health warnings should be displayed
-        FitnessPlan selectedPlan = null; // Declare selected plan outside the loop
+        //FitnessPlan selectedPlan = null; // Declare selected plan outside the loop
 
         for (FitnessPlan plan : plans) {
             // Check if the user's goal and fitness level match the plan
@@ -28,20 +30,24 @@ public class FitnessRecommendationSystem {
                     isLevelSufficient(user.getCurrentLevel(), plan.getLevel())) {
 
                 planFound = true; // Valid plan found
-                selectedPlan = plan; // Assign the valid plan to selectedPlan
+                recommendedPlan = plan.getCategory(); // Assign the valid plan to recommendedPlan
+                //selectedPlan = plan; // Assign the valid plan to selectedPlan
                 int totalTime = plan.getMinDuration() + getAdditionalTime(user.getCurrentLevel());
 
+                // Special handling for HIIT plan
                 if (plan.getCategory().equalsIgnoreCase("HIIT")) {
-                    if (user.getBoneOrJointProblems().equalsIgnoreCase("yes") || user.getSurgery().equalsIgnoreCase("yes")) {
+                    if (user.getBoneOrJointProblems().equalsIgnoreCase("yes")
+                            || user.getSurgery().equalsIgnoreCase("yes")) {
                         System.out.println("\nPlease BE AWARE and consider the following:");
-                        System.out.println("HIIT is not recommended for joint or bone problems or for those recovering from surgery due to high impact."  
-                        + " Please try a different fitness goal.");
-                        return;  // Skip the fitness plan recommendation entirely
+                        System.out.println(
+                                "HIIT is not recommended for joint or bone problems or for those recovering from surgery due to high impact."
+                                        + " Please try a different fitness goal.");
+                        return null; // Skip the fitness plan recommendation entirely
                     }
                 }
 
-                System.out.println("\nRecommended Fitness Plans based on your input:");
                 // Display the recommended plan
+                System.out.println("\nRecommended Fitness Plans based on your input:");
                 System.out.println("Category: " + plan.getCategory() +
                         ", Required Weekly Time: " + totalTime + " minutes" +
                         ", Goal: " + plan.getGoal());
@@ -49,11 +55,16 @@ public class FitnessRecommendationSystem {
             }
 
             // Check if any health warnings are needed
-            if (user.getBoneOrJointProblems().equalsIgnoreCase("yes") ||
-                    user.getDiabetes().equalsIgnoreCase("yes") ||
-                    user.getHeartDisease().equalsIgnoreCase("yes") ||
-                    user.getSurgery().equalsIgnoreCase("yes") ||
-                    user.getMedication().equalsIgnoreCase("yes")) {
+            // if (user.getBoneOrJointProblems().equalsIgnoreCase("yes") ||
+            //         user.getDiabetes().equalsIgnoreCase("yes") ||
+            //         user.getHeartDisease().equalsIgnoreCase("yes") ||
+            //         user.getSurgery().equalsIgnoreCase("yes") ||
+            //         user.getMedication().equalsIgnoreCase("yes")) {
+            //     healthWarningsNeeded = true;
+            // }
+
+            // Check if any health warnings are needed
+            if (user.hasMedicalConditions()) {
                 healthWarningsNeeded = true;
             }
         }
@@ -64,21 +75,23 @@ public class FitnessRecommendationSystem {
                     "\nSorry, your current fitness level does not match the requirements for your selected fitness goal: "
                             + user.getFitnessGoal() + ".");
             // Exit the program if no valid plan is found
-            System.exit(0);
+            return null; // No plan found
 
         }
 
         // Display health warnings only if needed
         if (healthWarningsNeeded) {
             System.out.println("\nPlease BE AWARE and consider the following:");
-            displayHealthWarnings(user, selectedPlan); // Use the selected plan, or null if none found
+            displayHealthWarnings(user, recommendedPlan); // Use the recommended plan, or null if none found
         }
+
+        return recommendedPlan; // Return the recommended fitness plan
     }
 
     // Check if the user's level meets or exceeds the minimum required level for the
     // plan
     private boolean isLevelSufficient(String userLevel, String requiredLevel) {
-        List<String> levels = List.of("Beginner", "Intermediate", "Advanced");
+        List<String> levels = Arrays.asList("Beginner", "Intermediate", "Advanced");
         int userLevelIndex = levels.indexOf(userLevel);
         int requiredLevelIndex = levels.indexOf(requiredLevel);
 
@@ -102,11 +115,11 @@ public class FitnessRecommendationSystem {
 
     // Display warnings or suggestions based on user's health conditions and the
     // fitness plan
-    private void displayHealthWarnings(User user, FitnessPlan plan) {
-        String category = plan.getCategory();
+    private void displayHealthWarnings(User user, String fitnessPlan) {
+        //String category = plan.getCategory();
 
-        if (plan != null) {
-            if (category.equalsIgnoreCase("Cardio")) {
+        if (fitnessPlan != null) {
+            if (fitnessPlan.equalsIgnoreCase("Cardio")) {
                 if (user.getBoneOrJointProblems().equalsIgnoreCase("yes")) {
                     System.out.println(
                             "For joint problems, low-impact cardio such as walking, cycling, or swimming is recommended.");
@@ -126,7 +139,7 @@ public class FitnessRecommendationSystem {
                 }
             }
 
-            if (category.equalsIgnoreCase("Strength Training")) {
+            if (fitnessPlan.equalsIgnoreCase("Strength Training")) {
                 if (user.getBoneOrJointProblems().equalsIgnoreCase("yes")) {
                     System.out.println(
                             "For joint problems, avoid heavy weights and focus on resistance training with lighter weights or resistance bands.");
@@ -144,7 +157,7 @@ public class FitnessRecommendationSystem {
                 }
             }
 
-            if (category.equalsIgnoreCase("Flexibility")) {
+            if (fitnessPlan.equalsIgnoreCase("Flexibility")) {
                 if (user.getBoneOrJointProblems().equalsIgnoreCase("yes")) {
                     System.out
                             .println(
@@ -164,7 +177,7 @@ public class FitnessRecommendationSystem {
                 }
             }
 
-            if (category.equalsIgnoreCase("HIIT")) {
+            if (fitnessPlan.equalsIgnoreCase("HIIT")) {
                 if (user.getBoneOrJointProblems().equalsIgnoreCase("yes")) {
                     System.out.println(
                             "HIIT is not recommended for joint or bone problems due to high impact.");
@@ -183,7 +196,7 @@ public class FitnessRecommendationSystem {
                 }
             }
 
-            if (category.equalsIgnoreCase("Yoga")) {
+            if (fitnessPlan.equalsIgnoreCase("Yoga")) {
                 if (user.getBoneOrJointProblems().equalsIgnoreCase("yes")) {
                     System.out.println(
                             "Yoga is excellent for joint problems as it improves flexibility and strength without high impact.");
