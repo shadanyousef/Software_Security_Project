@@ -6,7 +6,7 @@ public class MainApp {
         Scanner scanner = new Scanner(System.in);
         UserDatabase userDatabase = new UserDatabase();
 
-        userDatabase.printUsers(); // Debug output
+        //userDatabase.printUsers(); // Debug output
 
         // Welcome statement
         System.out.println("Welcome to the Personalized Fitness Plan Recommendation System!");
