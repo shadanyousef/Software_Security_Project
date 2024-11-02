@@ -6,7 +6,7 @@ public class MainApp {
         Scanner scanner = new Scanner(System.in);
         UserDatabase userDatabase = new UserDatabase();
 
-        //userDatabase.printUsers(); // Debug output
+        userDatabase.printUsers(); // Debug output
 
         // Welcome statement
         System.out.println("Welcome to the Personalized Fitness Plan Recommendation System!");
@@ -62,6 +62,9 @@ public class MainApp {
                         "Password must be at least 8 characters long, including at least 1 capital letter, 1 small letter, and 1 number.");
             }
         } while (!Validations.isValidPassword(password));
+        // Hash the password before creating the User object
+        String hashedPassword = userDatabase.hashPassword(password);
+        // System.out.println("Hashed Password: " + hashedPassword); // Debug output
 
         // NAME
         System.out.print("Please enter your name: ");
@@ -81,24 +84,38 @@ public class MainApp {
         String medication = getYesOrNoInput(scanner, "Are you taking any medication? (yes/no): ");
 
         // Fitness plan section
-        String goal = getFitnessGoal(scanner);
-        String level = getFitnessLevel(scanner);
+        String goal;
+        String level;
+        String fitnessCategory = ""; // To hold the fitness category
 
-        // Hash the password before creating the User object
-        String hashedPassword = userDatabase.hashPassword(password);
-        //System.out.println("Hashed Password: " + hashedPassword); // Debug output
+        // Loop until a valid fitness plan is generated
+        do {
+            goal = getFitnessGoal(scanner);
+            level = getFitnessLevel(scanner);
 
+            // After gathering user inputs
+            User user = new User(email, hashedPassword, name, age, gender, goal, level,
+                    boneOrJointProblems, diabetes, heartDisease, surgery, medication, "");
 
-        // Create the user object 
-        User user = new User(email, hashedPassword, name, age, gender, goal, level, boneOrJointProblems, diabetes,
-        heartDisease, surgery, medication, "");
-        
-        // Determine the fitness plan category based on user input
-        FitnessRecommendationSystem system = new FitnessRecommendationSystem();
-        String fitnessCategory = system.recommendFitnessPlans(user); // Retrieve the fitness category
+            // Determine the fitness plan category based on user input
+            FitnessRecommendationSystem system = new FitnessRecommendationSystem();
+            fitnessCategory = system.recommendFitnessPlans(user); // Retrieve the fitness category
+
+            // Check if a valid fitness plan was generated
+            if (fitnessCategory == null || fitnessCategory.isEmpty()) {
+                System.out.println("Sorry, no valid fitness plan could be generated based on your inputs.");
+                String tryAgainResponse = getYesOrNoInput(scanner, "Would you like to try again? (yes/no): ");
+
+                if (!tryAgainResponse.equals("yes")) {
+                    System.out.println("Thank you for using the system. Exiting...");
+                    return; // Exit the method if the user doesn't want to try again
+                }
+                System.out.println("Please re-enter your fitness goal and level.");
+            }
+        } while (fitnessCategory == null || fitnessCategory.isEmpty());
 
         // Update user object with fitnessCategory
-        user = new User(email, password, name, age, gender, goal, level, boneOrJointProblems, diabetes, heartDisease,
+        User user = new User(email, password, name, age, gender, goal, level, boneOrJointProblems, diabetes, heartDisease,
                 surgery, medication, fitnessCategory); // Update user with the correct fitness category
 
         // Save user data
@@ -138,8 +155,9 @@ public class MainApp {
 
             // Hash the entered password
             String hashedPassword = userDatabase.hashPassword(password);
-            //System.out.println("Entered Password Hash: " + hashedPassword); // Debug output
-
+            // Debug: Print the stored and entered password hashes
+            //System.out.println("Entered Password Hash: " + hashedPassword);
+            //System.out.println("Stored Password Hash: " + user.getPassword());
 
             if (user.getPassword().equals(hashedPassword)) {
                 System.out.println("\nLogin successful! Here is your information:");

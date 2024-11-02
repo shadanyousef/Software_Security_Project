@@ -22,16 +22,14 @@ public class FitnessRecommendationSystem {
         String recommendedPlan = null; // To hold the recommended fitness plan
         boolean planFound = false; // Track if any valid plan is found
         boolean healthWarningsNeeded = false; // Track if health warnings should be displayed
-        //FitnessPlan selectedPlan = null; // Declare selected plan outside the loop
 
         for (FitnessPlan plan : plans) {
             // Check if the user's goal and fitness level match the plan
             if (plan.getGoal().equalsIgnoreCase(user.getFitnessGoal()) &&
                     isLevelSufficient(user.getCurrentLevel(), plan.getLevel())) {
 
-                planFound = true; // Valid plan found
-                recommendedPlan = plan.getCategory(); // Assign the valid plan to recommendedPlan
-                //selectedPlan = plan; // Assign the valid plan to selectedPlan
+                planFound = true;
+                recommendedPlan = plan.getCategory();
                 int totalTime = plan.getMinDuration() + getAdditionalTime(user.getCurrentLevel());
 
                 // Special handling for HIIT plan
@@ -42,7 +40,7 @@ public class FitnessRecommendationSystem {
                         System.out.println(
                                 "HIIT is not recommended for joint or bone problems or for those recovering from surgery due to high impact."
                                         + " Please try a different fitness goal.");
-                        return null; // Skip the fitness plan recommendation entirely
+                        return null;
                     }
                 }
 
@@ -55,15 +53,6 @@ public class FitnessRecommendationSystem {
             }
 
             // Check if any health warnings are needed
-            // if (user.getBoneOrJointProblems().equalsIgnoreCase("yes") ||
-            //         user.getDiabetes().equalsIgnoreCase("yes") ||
-            //         user.getHeartDisease().equalsIgnoreCase("yes") ||
-            //         user.getSurgery().equalsIgnoreCase("yes") ||
-            //         user.getMedication().equalsIgnoreCase("yes")) {
-            //     healthWarningsNeeded = true;
-            // }
-
-            // Check if any health warnings are needed
             if (user.hasMedicalConditions()) {
                 healthWarningsNeeded = true;
             }
@@ -74,8 +63,7 @@ public class FitnessRecommendationSystem {
             System.out.println(
                     "\nSorry, your current fitness level does not match the requirements for your selected fitness goal: "
                             + user.getFitnessGoal() + ".");
-            // Exit the program if no valid plan is found
-            return null; // No plan found
+            return null;
 
         }
 
@@ -88,8 +76,7 @@ public class FitnessRecommendationSystem {
         return recommendedPlan; // Return the recommended fitness plan
     }
 
-    // Check if the user's level meets or exceeds the minimum required level for the
-    // plan
+    // Check if the user's level meets or exceeds the minimum required level for the plan
     private boolean isLevelSufficient(String userLevel, String requiredLevel) {
         List<String> levels = Arrays.asList("Beginner", "Intermediate", "Advanced");
         int userLevelIndex = levels.indexOf(userLevel);
@@ -113,10 +100,8 @@ public class FitnessRecommendationSystem {
         }
     }
 
-    // Display warnings or suggestions based on user's health conditions and the
-    // fitness plan
+    // Display warnings or suggestions based on user's health conditions and the fitness plan
     private void displayHealthWarnings(User user, String fitnessPlan) {
-        //String category = plan.getCategory();
 
         if (fitnessPlan != null) {
             if (fitnessPlan.equalsIgnoreCase("Cardio")) {

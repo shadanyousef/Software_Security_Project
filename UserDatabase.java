@@ -22,51 +22,52 @@ public class UserDatabase {
     private static final byte[] IV = new byte[16]; // 16 byte IV
 
     // Save user method
-public void saveUser(User user) {
-    List<User> users = loadUsers(); // Load existing users
+    public void saveUser(User user) {
+        List<User> users = loadUsers(); // Load existing users
 
-    // Hash the password before saving
-    String hashedPassword = hashPassword(user.getPassword());
-    User newUser = new User(user.getEmail(), hashedPassword, user.getName(), user.getAge(), 
-                            user.getGender(), user.getFitnessGoal(), user.getCurrentLevel(),
-                            user.getBoneOrJointProblems(), user.getDiabetes(),
-                            user.getHeartDisease(), user.getSurgery(),
-                            user.getMedication(), user.getFitnessCategory());
-    
-    users.add(newUser); // Add the new user
+        // Hash the password before saving
+        String hashedPassword = hashPassword(user.getPassword());
+        User newUser = new User(user.getEmail(), hashedPassword, user.getName(), user.getAge(),
+                user.getGender(), user.getFitnessGoal(), user.getCurrentLevel(),
+                user.getBoneOrJointProblems(), user.getDiabetes(),
+                user.getHeartDisease(), user.getSurgery(),
+                user.getMedication(), user.getFitnessCategory());
 
-    // Serialize the updated list of users and encrypt it
-    try {
-        CipherOutputStream cos = new CipherOutputStream(new FileOutputStream(FILE_NAME + ".enc"), getCipher(Cipher.ENCRYPT_MODE));
-        try (ObjectOutputStream oos = new ObjectOutputStream(cos)) {
-            oos.writeObject(users); // Write users to encrypted file
+        users.add(newUser); // Add the new user
+
+        // Serialize the updated list of users and encrypt it
+        try {
+            CipherOutputStream cos = new CipherOutputStream(new FileOutputStream(FILE_NAME + ".enc"),
+                    getCipher(Cipher.ENCRYPT_MODE));
+            try (ObjectOutputStream oos = new ObjectOutputStream(cos)) {
+                oos.writeObject(users); // Write users to encrypted file
+            }
+        } catch (IOException e) {
+            e.printStackTrace(); // Handle IO exceptions
+        } catch (Exception e) {
+            e.printStackTrace(); // Handle other exceptions from getCipher
         }
-    } catch (IOException e) {
-        e.printStackTrace(); // Handle IO exceptions
-    } catch (Exception e) {
-        e.printStackTrace(); // Handle other exceptions from getCipher
     }
-}
 
-// Load users method
-@SuppressWarnings("unchecked")
-public List<User> loadUsers() {
-    List<User> users = new ArrayList<>();
-    try {
-        CipherInputStream cis = new CipherInputStream(new FileInputStream(FILE_NAME + ".enc"), getCipher(Cipher.DECRYPT_MODE));
-        try (ObjectInputStream ois = new ObjectInputStream(cis)) {
-            users = (List<User>) ois.readObject();  // Deserialize the list of users
+    // Load users method
+    @SuppressWarnings("unchecked")
+    public List<User> loadUsers() {
+        List<User> users = new ArrayList<>();
+        try {
+            CipherInputStream cis = new CipherInputStream(new FileInputStream(FILE_NAME + ".enc"),
+                    getCipher(Cipher.DECRYPT_MODE));
+            try (ObjectInputStream ois = new ObjectInputStream(cis)) {
+                users = (List<User>) ois.readObject(); // Deserialize the list of users
+            }
+        } catch (FileNotFoundException e) {
+            // No users yet, file not found is fine
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace(); // Handle IO and class not found exceptions
+        } catch (Exception e) {
+            e.printStackTrace(); // Handle other exceptions from getCipher
         }
-    } catch (FileNotFoundException e) {
-        // No users yet, file not found is fine
-    } catch (IOException | ClassNotFoundException e) {
-        e.printStackTrace(); // Handle IO and class not found exceptions
-    } catch (Exception e) {
-        e.printStackTrace(); // Handle other exceptions from getCipher
+        return users;
     }
-    return users;
-}
-
 
     // Hash the password using SHA-256
     public String hashPassword(String password) {
